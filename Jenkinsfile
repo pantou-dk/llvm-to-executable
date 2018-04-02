@@ -3,7 +3,9 @@ pipeline {
     
     stages {
         stage('Create or Update BuildConfig') {
-            sh 'oc apply -f build-config.yaml'
+            steps {
+                sh 'oc apply -f build-config.yaml'
+            }
         }
     }
 }
