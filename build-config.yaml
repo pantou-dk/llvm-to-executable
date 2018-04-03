@@ -1,0 +1,30 @@
+kind: BuildConfig
+apiVersion: v1
+metadata:
+  name: llvm-to-executable
+spec:
+  triggers:
+    -
+      type: ImageChange
+  source:
+    git:
+      uri: git@github.com:pantou-dk/llvm-to-executable.git
+    sourceSecret:
+      name: danelaw-build
+  strategy:
+    dockerStrategy:
+      forcePull: true
+  output:
+    to:
+      kind: ImageStreamTag
+      name: llvm-to-executable:latest
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 100m
+    requests:
+      memory: 64Mi
+      cpu: 50m
+  completionDeadlineSeconds: 600
