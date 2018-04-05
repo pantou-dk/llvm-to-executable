@@ -5,9 +5,9 @@ pipeline {
         stage('Create Kubernetes Namespace') {
             steps {
                 script {
+                    createBuildProject()
                     openshift.withCluster() {
-                        openshift.newProject(env.BUILD_TAG)
-                        openshift.withProject(env.BUILD_TAG) {
+                        openshift.withProject(getProjectName()) {
                             def data = readYaml file: 'image-stream.yaml'
                             openshift.apply(data)
                             data = readYaml file: 'build-config.yaml'
@@ -22,9 +22,12 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        def imageBuild = openshift.selector('bc/llvm-to-executable')
-                        def buildExecution = imageBuild.startBuild()
-                        buildExecution.logs('-f')
+                        openshift.withProject(getProjectName()) {
+                            def imageBuild = openshift.selector('bc/llvm-to-executable')
+                            def buildExecution = imageBuild.startBuild()
+                            buildExecution.logs('-f')
+                            openshift.failUnless(buildExecution.status == 0)
+                        }
                     }
                 }
             }
@@ -35,7 +38,7 @@ pipeline {
         always {
             script {
                 openshift.withCluster() {
-                    openshift.delete('project/' + env.BUILD_TAG)
+                    openshift.delete('project', getProjectName())
                 }
             }
         }
