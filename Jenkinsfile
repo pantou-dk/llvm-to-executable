@@ -1,3 +1,7 @@
+def getProjectName() {
+    return env.BUILD_TAG.substring(18).toLowerCase();
+}
+
 pipeline {
     agent any
     
@@ -6,8 +10,8 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newProject(env.BUILD_TAG)
-                        openshift.withProject(env.BUILD_TAG) {
+                        openshift.newProject(getProjectName())
+                        openshift.withProject(getProjectName()) {
                             def data = readYaml file: 'image-stream.yaml'
                             openshift.apply(data)
                             data = readYaml file: 'build-config.yaml'
@@ -22,7 +26,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject(env.BUILD_TAG) {
+                        openshift.withProject(getProjectName()) {
                             def imageBuild = openshift.selector('bc/llvm-to-executable')
                             def buildExecution = imageBuild.startBuild()
                             buildExecution.logs('-f')
@@ -38,7 +42,7 @@ pipeline {
         always {
             script {
                 openshift.withCluster() {
-                    openshift.delete('project', env.BUILD_TAG)
+                    openshift.delete('project', getProjectName())
                 }
             }
         }
