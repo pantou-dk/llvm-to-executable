@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newProject(getProjectName())
+                        createBuildProject()
                         openshift.withProject(getProjectName()) {
                             def data = readYaml file: 'image-stream.yaml'
                             openshift.apply(data)
