@@ -2,10 +2,19 @@ pipeline {
     agent any
     
     stages {
-        stage('Create or Update Kubernetes Objects') {
+        stage('Create Kubernetes Namespace') {
             steps {
-                sh 'oc apply -f image-stream.yaml'
-                sh 'oc apply -f build-config.yaml'
+                script {
+                    openshift.withCluster() {
+                        openshift.newProject(env.BUILD_TAG)
+                        openshift.withProject(env.BUILD_TAG) {
+                            def data = readYaml file: 'image-stream.yaml'
+                            openshift.apply(data)
+                            data = readYaml file: 'build-config.yaml'
+                            openshift.apply(data)
+                        }
+                    }
+                }
             }
         }
         
@@ -17,6 +26,16 @@ pipeline {
                         def buildExecution = imageBuild.startBuild()
                         buildExecution.logs('-f')
                     }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                openshift.withCluster() {
+                    openshift.delete('project/' + env.BUILD_TAG)
                 }
             }
         }
