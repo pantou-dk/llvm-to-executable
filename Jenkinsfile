@@ -33,6 +33,23 @@ pipeline {
             }
         }
     }
+    
+    stage('Promote to Catalog') {
+        when {
+            branch 'master'
+        }
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject('openshift') {
+                        def data = readYaml file: 'image-stream.yaml'
+                        openshift.apply(data)
+                        openshift.tag(getProjectName() + '/llvm-to-executable:latest', 'llvm-to-executable:latest')
+                    }
+                }
+            }
+        }
+    }
 
     post {
         always {
