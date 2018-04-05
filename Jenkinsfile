@@ -5,8 +5,8 @@ pipeline {
         stage('Create Kubernetes Namespace') {
             steps {
                 script {
+                    createBuildProject()
                     openshift.withCluster() {
-                        createBuildProject()
                         openshift.withProject(getProjectName()) {
                             def data = readYaml file: 'image-stream.yaml'
                             openshift.apply(data)
