@@ -22,9 +22,12 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        def imageBuild = openshift.selector('bc/llvm-to-executable')
-                        def buildExecution = imageBuild.startBuild()
-                        buildExecution.logs('-f')
+                        openshift.withProject(env.BUILD_TAG) {
+                            def imageBuild = openshift.selector('bc/llvm-to-executable')
+                            def buildExecution = imageBuild.startBuild()
+                            buildExecution.logs('-f')
+                            openshift.failUnless(buildExecution.status == 0)
+                        }
                     }
                 }
             }
@@ -35,7 +38,7 @@ pipeline {
         always {
             script {
                 openshift.withCluster() {
-                    openshift.delete('project/' + env.BUILD_TAG)
+                    openshift.delete('project', env.BUILD_TAG)
                 }
             }
         }
