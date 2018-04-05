@@ -2,8 +2,9 @@ pipeline {
     agent any
     
     stages {
-        stage('Create or Update Kubernetes Objects') {
+        stage('Create Kubernetes Namespace') {
             steps {
+                println env.BUILD_TAG
                 sh 'oc apply -f image-stream.yaml'
                 sh 'oc apply -f build-config.yaml'
             }
