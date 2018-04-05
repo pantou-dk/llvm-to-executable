@@ -24,7 +24,7 @@ pipeline {
                     openshift.withCluster() {
                         openshift.withProject(getProjectName()) {
                             def imageBuild = openshift.selector('bc/llvm-to-executable')
-                            def buildExecution = imageBuild.startBuild()
+                            def buildExecution = imageBuild.startBuild('--from-dir=.')
                             buildExecution.logs('-f')
                             openshift.failUnless(buildExecution.status == 0)
                         }

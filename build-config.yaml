@@ -3,14 +3,8 @@ apiVersion: v1
 metadata:
   name: llvm-to-executable
 spec:
-  triggers:
-    -
-      type: ImageChange
   source:
-    git:
-      uri: git@github.com:pantou-dk/llvm-to-executable.git
-    sourceSecret:
-      name: danelaw-build
+    binary: {}
   strategy:
     dockerStrategy:
       forcePull: true
