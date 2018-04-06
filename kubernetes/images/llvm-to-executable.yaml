@@ -2,4 +2,6 @@ kind: ImageStream
 apiVersion: v1
 metadata:
   name: llvm-to-executable
+  labels:
+    promote: "true"
 spec: {}
